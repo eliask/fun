@@ -9,12 +9,28 @@ def select_var(csp, assignment):
         if not var in assigned_vars:
             return var,dom
 
+def get_values(csp, assignment, var, dom):
+    """Get the least constraining value first.
+
+    This actually turns out to be >50x slower than simply using the
+    domain directly, in sudoku1 for instance...
+    """
+    assignment_vars = [x[0] for x in assignment] + [var]
+    remaining_vars = [x for x in csp if x[0] not in assignment_vars]
+
+    def constrained(val):
+        s = [ _val for _val in [ dom for (_var,dom) in remaining_vars ]
+              if all(C(_var,_val,[(var,val)]+assignment)
+                     for C in csp.constraints) ]
+        return -len(s)
+    return sorted(dom, key=constrained)
+
 def csp_solve(csp, assignment):
     if len(assignment) == len(csp):
         return assignment
 
     var,dom = select_var(csp, assignment)
-    for val in dom:
+    for val in get_values(csp, assignment, var, dom):
         if all(C(var,val,assignment) for C in csp.constraints):
             sol = csp_solve( csp, assignment+[(var,val)] )
             if sol: return sol
