@@ -40,7 +40,7 @@ def sudoku2csp(sudoku):
 
     csp = CSP(constraints)
     for var,s in enumerate(sudoku):
-        dom = range(10)
+        dom = range(1,10)
         if s != '.': dom = [int(s)]
         csp.append((var,dom))
 
