@@ -112,7 +112,10 @@ def generate2(chain, words=[], dir=0):
     state = [None]
     if words:
         state = (state+words)[-NGRAM:]
-        total = sum( fwd_chain[tuple(state)].values() )
+        if tuple(state) in fwd_chain:
+            total = sum( fwd_chain[tuple(state)].values() )
+        else:
+            total = 0
         prob = 1 - min(1, 1/4.*(total-1))
         # If there are few instances of the context, fall
         # back to using smaller N-grams:
