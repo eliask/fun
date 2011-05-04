@@ -1,4 +1,4 @@
-def json(self, obj):
+def json(obj):
     """A simple compact JSON formatter.
 
     The main purpose of this was to encode a subset of the possible
