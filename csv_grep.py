@@ -23,7 +23,7 @@ try:
     # Read these now since current negative index implementation needs the number of columns
     IdxAttrs = dict(enumerate(sys.stdin.readline().strip().split(delim)))
     Attrs = dict(((attr,idx),idx) for idx,attr in IdxAttrs.items())
-    if len(IdxAttrs) != set(IdxAttrs.values()):
+    if len(IdxAttrs) != len(set(IdxAttrs.values())):
         print >>sys.stderr, "Warning: Input contains duplicate column names"
 
     def safemod(x,y):
