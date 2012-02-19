@@ -4,14 +4,14 @@
 import sys, re, operator
 
 concat = lambda z: reduce(operator.add, z)
-match_fn = lambda attr: not any(re.search(match_attr, attr) for match_attr in match_attrs)
+match_fn = lambda (name,_): not any(re.search(match_attr, name) for match_attr in match_attrs)
 cond_invert = lambda x:x
 mode = 'regexp'
 try:
     if sys.argv[1] == '-x':
         mode = 'index'
         del sys.argv[1]
-        match_fn = lambda attr: Attrs[attr] not in match_attrs
+        match_fn = lambda (_,idx): idx not in match_attrs
     if sys.argv[1] == '-v':
         cond_invert = lambda x:not x
         del sys.argv[1]
@@ -22,10 +22,12 @@ try:
 
     # Read these now since current negative index implementation needs the number of columns
     IdxAttrs = dict(enumerate(sys.stdin.readline().strip().split(delim)))
-    Attrs = dict((attr,idx) for idx,attr in IdxAttrs.items())
+    Attrs = dict(((attr,idx),idx) for idx,attr in IdxAttrs.items())
+    if len(IdxAttrs) != set(IdxAttrs.values()):
+        print >>sys.stderr, "Warning: Input contains duplicate column names"
 
     if mode == 'index':
-        match_attrs = set(concat((lambda x:range(x[0],1+x[1] if x[1:] else 1+x[0]))
+        match_attrs = set(concat((lambda x:range(x[0],1+x[1]if x[1:]else 1+x[0]))
                                  (map(lambda x:int(x)%len(Attrs),re.split('[^-\d]+',z)[:2]))
                                  for z in match_attrs))
 
