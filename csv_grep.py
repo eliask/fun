@@ -26,14 +26,28 @@ try:
     if len(IdxAttrs) != set(IdxAttrs.values()):
         print >>sys.stderr, "Warning: Input contains duplicate column names"
 
+    def safemod(x,y):
+        if abs(x) >= y:
+            print >>sys.stderr, "Warning: indices were wrapped around (requested attribute %d(%d) out of %d)" % (x,x%y,y)
+        return x % y
+
+    def get_indices(expr):
+        X = re.split('[^-\d]+', expr)[:2]
+        if len(X) == 1:
+            return [ safemod(int(expr), len(Attrs)) ]
+        if not X[0] and not X[1]:
+            raise Exception("Invalid index or index range: '%s'" % expr)
+
+        start = safemod( int(X[0]) if X[0] else 0, len(Attrs) )
+        end = safemod( int(X[1]) if X[1] else len(Attrs)-1, len(Attrs) )
+        return range(start, end+1)
+
     if mode == 'index':
-        match_attrs = set(concat((lambda x:range(x[0],1+x[1]if x[1:]else 1+x[0]))
-                                 (map(lambda x:int(x)%len(Attrs),re.split('[^-\d]+',z)[:2]))
-                                 for z in match_attrs))
+        match_attrs = set(concat(map(get_indices, match_attrs)))
 
 except IndexError:
     print "Usage: %s [-v] <delim> <column regexps ...>" % sys.argv[0]
-    print "       %s -x [-v] <delim> <index ranges, e.g. 0:5 or -5..-2 ...>" % sys.argv[0]
+    print "       %s -x [-v] <delim> <indices or index ranges, e.g. 3, 0:5, or -5..-2 ...>" % sys.argv[0]
     sys.exit(1)
 
 for attr in Attrs.keys():
