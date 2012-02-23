@@ -4,7 +4,7 @@
 import sys, re, operator
 
 concat = lambda z: reduce(operator.add, z)
-match_fn = lambda (name,_): not any(re.search(match_attr, name) for match_attr in match_attrs)
+match_fn = lambda (name,_): not any(match_attr.search(name) for match_attr in match_attrs)
 cond_invert = lambda x:x
 mode = 'regexp'
 try:
@@ -44,6 +44,8 @@ try:
 
     if mode == 'index':
         match_attrs = set(concat(map(get_indices, match_attrs)))
+    elif mode == 'regexp':
+        match_attrs = map(re.compile, match_attrs)
 
 except IndexError:
     print "Usage: %s [-v] <delim> <column regexps ...>" % sys.argv[0]
