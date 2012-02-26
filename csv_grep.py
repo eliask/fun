@@ -12,6 +12,10 @@ try:
         mode = 'index'
         del sys.argv[1]
         match_fn = lambda (_,idx): idx not in match_attrs
+    elif sys.argv[1] == '-m':
+        mode = 'exact-match'
+        del sys.argv[1]
+        match_fn = lambda (attr,_): attr not in match_attrs
     if sys.argv[1] == '-v':
         cond_invert = lambda x:not x
         del sys.argv[1]
@@ -49,6 +53,7 @@ try:
 
 except IndexError:
     print "Usage: %s [-v] <delim> <column regexps ...>" % sys.argv[0]
+    print "       %s -m [-v] <delim> <column names (exact match) ...>" % sys.argv[0]
     print "       %s -x [-v] <delim> <indices or index ranges, e.g. 3, 0:5, or -5..-2 ...>" % sys.argv[0]
     sys.exit(1)
 
