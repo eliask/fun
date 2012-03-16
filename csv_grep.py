@@ -27,6 +27,7 @@ try:
     # Read these now since current negative index implementation needs the number of columns
     IdxAttrs = dict(enumerate(sys.stdin.readline().strip().split(delim)))
     Attrs = dict(((attr,idx),idx) for idx,attr in IdxAttrs.items())
+    NumColumns = len(Attrs)
     if len(IdxAttrs) != len(set(IdxAttrs.values())):
         print >>sys.stderr, "Warning: Input contains duplicate column names"
 
@@ -66,6 +67,11 @@ for attr in Attrs.keys():
 Order = sorted(IdxAttrs)
 print delim.join(IdxAttrs[i] for i in Order)
 
-for line in sys.stdin:
+for lineno,line in enumerate(sys.stdin,1):
     instance = line.strip().split(delim)
-    print delim.join(instance[i] for i in Order)
+    row_length = len(instance)
+    if row_length == NumColumns:
+        print delim.join(instance[i] for i in Order)
+    else:
+        print >>sys.stderr, "Warning: Wrong number of columns: expected %d, got %d at line %d" % (NumColumns, row_length, lineno)
+        print delim.join(instance[i] for i in Order if i<len(instance))
